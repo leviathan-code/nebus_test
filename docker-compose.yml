@@ -1,0 +1,36 @@
+services:
+  web:
+    container_name: fastapi_app
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_HOST=database
+      - DATABASE_NAME=postgis3
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    volumes:
+      - ./:/usr/src/app
+  
+  database:
+    image: postgis/postgis:15-3.3
+    volumes:
+      - postgres_data:/var/lib/postgresql_postgres_db/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
